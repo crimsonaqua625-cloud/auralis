@@ -1,0 +1,15 @@
+{
+  "name": "Auralis API",
+  "version": "1.0.0",
+  "description": "Pokémon bot game API",
+  "buildCommand": "npm install",
+  "outputDirectory": "./",
+  "env": {
+    "MONGODB_URI": "@mongodb_uri",
+    "NODE_ENV": "production",
+    "PORT": "10000",
+    "TELEGRAM_BOT_TOKEN": "@telegram_bot_token",
+    "CORS_ORIGIN": "@cors_origin",
+    "JWT_SECRET": "@jwt_secret"
+  }
+}

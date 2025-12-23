@@ -1,0 +1,1762 @@
+PROJECT AURALIS
+1. Introduction
+This project is a Pokémon-based game implemented as a bot-first system, designed to be
+fully playable without requiring any external resources such as websites, wikis, or third-party
+tools.
+The game focuses on:
+● Structured PvE progression
+● Strategic combat
+● Long-term Pokémon development
+● Player-driven economy and trading
+● Event-based and repeatable content
+The bot acts as the sole interface for gameplay, progression, interaction, and rewards. All
+mechanics are designed to work asynchronously, meaning players do not need to be online
+simultaneously to interact with systems such as trading, raids, auctions, or dungeons.
+The game uses official Pokémon regions, Pokémon, and mechanics (Generation 8
+baseline) while selectively disabling or postponing certain mechanics to maintain balance and
+clarity in Phase 1.
+2. Features
+No Feature
+1. Pokedex – Phase 1 Design
+1. Scope
+● Covers only Region 1 + 2 Pokémon.
+● Includes all relevant stats: HP, Attack, Defense, Special Attack, Special Defense,
+Speed.
+● Includes types, evolutions, learnable moves, and abilities.
+● No external sources needed for the player; all data is preloaded or cached locally.
+2. Player Interaction
+● Players can view all Pokémon in the Pokedex, regardless of whether they’ve caught
+them.
+● Optional distinction:
+○ “Pokedex” = all Pokémon info, fully accessible.
+○ “PokeGuide” = additional information for moves, evolutions, tips, lore.
+● Suggestion: For Phase 1, keep just one unified Pokedex to reduce complexity;
+PokeGuide can be added later if needed.
+3. Completion Rewards
+● Not planned for Phase 1.
+● Can be added later (e.g., rewards for 50%, 100% completion).
+4. Tracking Details
+● Each Pokémon tracks:
+○ Level caught
+○ Shiny status
+○ Nickname
+○ Gender
+○ Abilities
+● This allows for future features like breeding, EV training, and trading.
+5. Data Source
+● Use PokeAPI to fetch stats, moves, and evolutions initially.
+● Cache locally in JSON / database for fast access and offline stability.
+● This keeps the bot independent of live API calls during gameplay.
+✅ Design Decision / Suggestion
+● Unified Pokedex in Phase 1 to avoid unnecessary complexity.
+● Progressive unlocks (seen vs. caught) can be added later if desired, but players can
+view all Pokémon immediately.
+● All moves and stats stored locally for instant lookup in battle or party management.
+2. Pokémon Feature – Phase 1 Final Design
+This feature is the player’s Pokémon collection manager, showing all Pokémon owned and
+providing detailed info, outside and inside battles.
+1. Collection Overview
+● Grouped by species: Duplicates are shown as one entry in the main list.
+● Click a species → shows all instances of that species owned.
+● Sorting options:
+○ Level
+○ Nature
+○ IV/EV (if implemented)
+○ Moveset
+○ Gender
+○ Shiny status
+● Allows players to quickly find and manage Pokémon without being overwhelmed by
+duplicates.
+2. Individual Pokémon Details
+● Select a specific Pokémon instance → shows:
+○ ID (unique per instance)
+○ Level
+○ Nature
+○ Shiny / Gender
+○ Status (if applicable)
+○ Evolution readiness
+○ Moveset
+○ Optional: EV/IV split
+○ Optional: Stats summary
+● Buttons:
+○ View Stats
+○ View IV/EV
+○ View Moveset
+○ Heal (outside battle)
+○ Evolution confirmation (manual)
+○ Delete/Replace Move when learning new move
+3. Battle/Combat Relevance
+● Pokémon details are used in battle:
+○ Level, stats, moves, status, type, abilities
+● Heals automatically after battle if enabled (like Pokémon Centers or items).
+● Notifications:
+○ Pokémon ready to evolve
+○ Pokémon learned a new move
+○ Pokémon needs to forget a move to learn a new one
+4. Data Structure (Phase 1)
+Each Pokémon instance stored as:
+{
+"instance_id": 12345,
+"species_id": 25,
+"nickname": "Sparky",
+"level": 25,
+"nature": "Jolly",
+"shiny": false,
+"gender": "male",
+"current_hp": 70,
+"status": null,
+"moves": ["Thunderbolt", "Quick Attack", "Iron Tail", "Agility"],
+"evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+"ivs": {"hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe":
+31},
+"ready_to_evolve": true,
+"experience": 15000,
+"fainted": false
+}
+● EVs/IVs: Can be simplified initially but included for future features (training, breeding,
+etc.).
+● Unique ID allows multiple instances of the same species to be tracked individually.
+5. Moves Management
+● Maximum of 4 moves per Pokémon.
+● When learning a new move, player chooses which existing move to forget (manual
+selection).
+● Moves can also be viewed and managed outside battle.
+6. Evolution
+● Manual evolution method.
+● Notification is triggered when level or condition is met.
+● Player confirms evolution from UI.
+7. Suggestions / Enhancements
+● Implement filter + sort system at the species and instance level for easy management.
+● Show quick info summary for each Pokémon in the species list (Level, Nature, Shiny).
+● Make stat/IV/EV views collapsible so the UI remains clean.
+● Consider batch actions later (heal multiple Pokémon, mass transfer to storage).
+✅ Phase 1 Feature Takeaways
+● Fully supports collection management for multiple instances.
+● Works outside battles for healing, move management, and evolution.
+● Supports battle-relevant data automatically.
+● Includes notifications for level-ups, moves learned, evolution readiness.
+● Manual evolution and move deletion method implemented.
+3. Team / Party – Phase 1 Final Design
+1. Core Functionality
+● Players can have up to 6 Pokémon per team/party.
+● Players can save up to 6 different teams/parties.
+● Before any battle or activity, players can select which team to use.
+● Players can also set a “Main Team” that is used as default in other activities
+(exploration, raids, dungeons).
+2. Player Interaction
+● View Teams: Shows Pokémon with only summary info (e.g., Level, Type, Nickname, or
+any display fields set in Pokémon feature).
+● Swap Pokémon: Replace Pokémon from storage into a team.
+● Reorder Pokémon: Change their battle order.
+● Select Team: Pick which saved team to use for upcoming activities.
+● Set Main Team: Assign one team as default for non-battle activities.
+● Favorite Pokémon: Flag Pokémon to prevent accidental removal from any team.
+Note: In Phase 1, viewing full Pokémon info is done only in the Pokémon feature, not in the
+team menu.
+3. Rules & Constraints
+● Maximum 6 Pokémon per team.
+● No restrictions on duplicates — a team can have multiple of the same species.
+● Party changes only allowed outside battle.
+● Team selection applies per activity, so players can change before raids, PVP, or
+exploration.
+4. Data Structure
+For each player:
+{
+"main_team": 1,
+"teams": {
+"1": [12345, 23456, 34567, 45678, 56789, 67890],
+"2": [78901, 89012, 90123, 101234, 112345, 123456],
+"3": [...],
+"4": [...],
+"5": [...],
+"6": [...]
+},
+"favorites": [12345, 78901, 23456]
+}
+● teams → array of Pokémon instance IDs.
+● favorites → Pokémon that cannot be accidentally removed from a team.
+5. Suggestions / Enhancements
+● Team quick preview: Show Level + Type icons for each Pokémon in the team.
+● Auto-sort option: Sort by Level, Type, or Favorite.
+● Phase 2: Display held items or abilities in team preview.
+● Optional: Team naming for easier recognition (e.g., “PvP Team”, “Raid Team”).
+✅ Phase 1 Takeaways
+● Multi-team support enhances player flexibility.
+● Reordering, swapping, and main team selection give full control.
+● Favorites prevent accidental removals.
+● Minimal UI clutter while fully functional.
+4. Factions – Phase 1 Final Design
+1. Core Concept
+● Factions are guild-like structures, but:
+○ Faction types are predefined by the game, not player-created freely.
+○ Players cannot create arbitrary factions.
+● A player may become a Faction Leader only if:
+○ They possess a Faction Creation Card.
+○ They choose one predefined faction.
+○ Bot/Admin approval is granted.
+This keeps faction lore, balance, and population under control.
+2. Faction Creation Rules
+● Faction Creation Card:
+○ Extremely rare.
+○ Obtained via events or special rewards.
+● When used:
+○ Player selects one predefined faction.
+○ Request goes into approval queue.
+○ On approval:
+■ Player becomes Faction Leader.
+■ Faction is activated (or reactivated if dormant).
+No card → no creation.
+3. Membership Rules
+● Players can:
+○ Apply to join a faction.
+○ Leave a faction voluntarily.
+● Leaving or being kicked triggers a:
+○ Cooldown of ~2 weeks before joining another faction.
+● A player can belong to only one faction at a time.
+This discourages faction hopping and enforces commitment.
+4. Roles & Hierarchy
+Each faction has:
+Role Count Permissions
+Leader 1 Full control
+Vice Leader / Captain 2 Manage members, accept/reject
+applications
+Member Remaining Participate only
+●
+Vice Leaders are assigned by the Leader.
+● No emblem customization (icons are predefined).
+5. Faction Levels (Stars)
+● 1★ Faction
+○ Max members: 50
+● 3★ Faction
+○ Max members: 100
+● Star upgrades:
+○ Not implemented in Phase 1
+○ Placeholder exists in data model for Phase 2/3.
+6. Player Interaction (Phase 1)
+Players can:
+● View all available factions.
+● View faction details:
+○ Name
+○ Star level
+○ Member count
+○ Leader & Vice Leaders
+● Apply to join a faction.
+● Leave a faction (with cooldown).
+No faction chat, bonuses, or raids yet.
+7. Data Structure (Phase 1)
+{
+"faction_id": 1,
+"name": "Valor Order",
+"predefined": true,
+"stars": 1,
+"leader_id": 12345,
+"vice_leaders": [23456, 34567],
+"members": [12345, 23456, 34567, ...],
+"max_members": 50,
+"created_via_card": true
+}
+Player side:
+{
+"player_id": 12345,
+"faction_id": 1,
+"role": "Leader",
+"join_cooldown_until": null
+}
+8. Explicitly Excluded in Phase 1
+● Faction chat
+● Faction raids
+● Faction buffs
+● Emblem customization
+● Star upgrades
+(All reserved for Phase 2 / Phase 3)
+✅ Phase 1 Takeaways
+● Strong control over faction creation
+● Prevents spam, abuse, and imbalance
+● Encourages long-term commitment
+● Fully compatible with future Raids, PvP, and faction wars
+5. Raids – Phase 1 (Final Design)
+1. Core Definition
+● Raids are high-difficulty PvE boss battles.
+● Bosses are single powerful Pokémon with inflated stats.
+● Raids are not faction-based in Phase 1.
+● Participation is ticket-based and limited daily.
+2. Raid Tiers
+There are 3 tiers per raid:
+Tier Difficulty Players
+Needed
+Catch
+Chance
+Tier 1 Easy 4–5 25%
+Tier 2 Medium 7–8 10%
+Tier 3 Hard 9–10 1%
+●
+Up to 10 players max
+● Raid can start with a minimum of 2 players
+● Raid start requires player voting
+3. Turn & Timer System
+● Raids use turn-based combat
+● Each player has a fixed number of turns
+● Failure conditions:
+○ Turn limit exceeded
+○ All Pokémon faint
+● On failure:
+○ Boss HP resets to 100%
+This avoids partial progress abuse.
+4. Boss Mechanics
+● Boss Pokémon have:
+○ Extremely high HP
+○ Boosted stats
+○ Increased shiny rate vs wild encounters
+● Status effects:
+○ Allowed
+○ Boss may resist some effects (configurable later)
+5. Catch Mechanics
+After the boss is defeated:
+● Each participant gets one independent catch attempt
+● Catch success chance depends on tier:
+○ Easy → 25%
+○ Medium → 10%
+○ Hard → 1%
+● Shiny bosses:
+○ Much lower catch success rates
+● Failure does not consume extra tickets
+6. Raid Menu (UI / Commands)
+Raid menu contains:
+1. Search Active Raids
+○ Shows available raids
+2. Set Raid Pokémon
+○ Choose which Pokémon instance will participate
+3. Join Raid
+○ Uses 1 Raid Ticket
+4. View Raid Info
+○ Tier, boss, players joined, turns left
+7. Tickets, Limits & Refresh
+● Players receive:
+○ 1 Raid Ticket daily
+● Raid participation limit:
+○ 1 raid per 24 hours
+● Available raids:
+○ ~20 raids active at a time
+○ Refresh every 20 hours
+This prevents farming while keeping activity high.
+8. Failure & Abuse Protection
+● If raid fails:
+○ Boss HP fully restores
+○ Ticket is consumed
+● Prevents chip-damage exploitation
+● Encourages coordination
+9. Limited / Event Raids (Phase 1 – Special Case)
+Event Raid Rules
+● Boss is:
+○ Extremely rare Pokémon
+● Raid duration:
+○ Lasts several hours
+● No simultaneous participation required
+● No player limit
+Mechanics
+● Players contribute damage over time
+● Boss HP persists across players
+● Rewards distributed:
+○ Based on individual contribution
+● If boss defeated before timer ends:
+○ All contributors receive rewards
+Catch Rules
+● Can be:
+○ Guaranteed encounter
+○ Or special drop-based capture (to decide later)
+10. Explicitly Excluded (Phase 1)
+● Faction raid bonuses
+● Raid leaderboards
+● Shield phases
+● Enrage mechanics
+● Raid roles (tank/support)
+(All planned for Phase 2+)
+11. Data Model (Simplified)
+{
+"raid_id": 301,
+"tier": 2,
+"boss_species_id": 384,
+"max_players": 10,
+"current_players": 7,
+"turns_per_player": 5,
+"status": "waiting"
+}
+Event raid:
+{
+"event_raid_id": 9001,
+"boss_species_id": 493,
+"total_hp": 5000000,
+"remaining_hp": 1200000,
+"end_time": "2025-12-18T18:00:00Z"
+}
+✅ Phase 1 Raid System Summary
+● Clear difficulty scaling
+● Controlled participation
+● High-risk, high-reward loop
+● Independent catch chances
+● Event raids introduce global collaboration
+● Fully expandable for faction integration later
+✅ Raid System — FINAL LOCK (Phase 1)
+Core Identity
+● Raids are:
+○ Group-based PvE
+○ 4–10 players
+○ High-difficulty, cooperative content
+● Two categories:
+○ Daily Raids
+○ Event Raids
+● Cooldowns are separate for each category
+⭐ Raid Star Tiers
+⭐ 1-Star Raid
+● Boss Pokémon:
+○ Normal species
+○ Increased stats
+● Designed for:
+○ Casual groups
+○ Entry-level raid content
+⭐⭐ 2-Star Raid
+● Boss Pokémon:
+○ Stronger species
+○ Further increased stats
+● Requires:
+○ Basic coordination
+○ Decent team balance
+⭐⭐⭐ 3-Star Raid
+● Boss Pokémon:
+○ Very hard to clear
+○ High stats and optimized moves
+● Requires:
+○ Coordinated teams
+○ Strong type coverage
+⭐⭐⭐⭐ 4-Star Raid
+● Boss Pokémon:
+○ Extremely difficult
+○ Intended for:
+■ Legendary
+■ Mythical
+■ Pseudo-Legendary focused teams
+● Considered near-impossible without preparation
+✔ Clear, intuitive difficulty ladder.
+⚔️ Raid Battle Rules
+Turns
+● Each player receives 10 turns
+● Turn usage is individual, not shared
+Win / Loss Conditions
+● Raid ends when:
+○ Boss Pokémon is defeated, or
+○ All player Pokémon are wiped out
+● If raid fails:
+○ Boss HP resets to 100%
+● No partial progress carryover
+✔ Clean, exploit-proof.
+🎯 Catching the Raid Boss
+● Catch attempt is:
+○ Only available after boss defeat
+● Catch chance:
+○ Low at all star tiers
+○ Even lower if the boss is shiny
+● Boss shiny chance:
+○ Lower than wild encounters at all tiers
+✔ Prevents raid farming abuse.
+🎁 Rewards
+● Raids give:
+○ High-value rewards
+● Rewards are:
+○ Sent via Mail
+● Reward content:
+○ Currency
+○ Items
+○ Possibly raid-exclusive loot (to be defined later)
+✔ Correct to decouple reward delivery.
+🧠 Professional Evaluation
+The Raid system is:
+● Appropriately punishing
+● Clearly tiered
+● Cooperative by necessity
+● Resistant to abuse
+● Designed to scale for future content
+Importantly:
+● Raids do not replace Dungeons
+● Raids do not invalidate wild encounters
+● Raids do not flood Legendaries
+This is correct live-service thinking.
+6. Combat System – Phase 1 (Revised &
+Locked)
+This is the authoritative version.
+1. Battle Type Support
+✅ Unchanged
+Same combat engine for:
+● PvE (wild, trainers)
+● Raids
+● PvP
+● Gyms
+● Dungeons
+Only configuration differs.
+2. Turn System
+✅ Confirmed + clarified
+● Turn-based
+● Turn order:
+○ Priority
+○ Speed
+● Raids:
+○ Each player gets exactly 10 turns
+○ Turns tracked per player
+○ Boss acts after a full round
+3. Damage Formula
+✅ Confirmed + updated
+Base formula stays:
+Damage =
+(((2 × Level / 5 + 2) × Power × Attack / Defense) / 50 + 2)
+× Modifiers
+Modifiers in Phase 1 now INCLUDE:
+● STAB
+● Type effectiveness
+● Critical hits
+● Random factor (85%–100%)
+● Weather
+● Items
+● Abilities
+● Held items
+So:
+Weather, abilities, and held items are Phase 1, not deferred.
+4. Accuracy & Evasion
+✅ Confirmed
+● Base accuracy per move
+● Accuracy & evasion stages:
+○ −6 to +6
+● Formula unchanged:
+Final Accuracy = Move Accuracy × (User Accuracy / Target Evasion)
+5. Status Effects
+✅ Confirmed with correction
+Supported statuses:
+Status Effect
+Burn Damage per turn + physical attack reduction
+only
+Poison Damage per turn
+Bad
+Poison
+Increasing damage
+Paralysis Speed reduction + chance to fail
+Sleep Cannot act for N turns
+Freeze Chance to thaw
+Confusion Self-damage chance
+❌ Burn does NOT reduce Special Attack
+Correct — this matches modern Pokémon logic.
+6. Moves System (Including Custom Moves)
+✅ Confirmed + extended
+● Moves are data-driven, not hardcoded
+● Supports:
+○ Damage only
+○ Status only
+○ Damage + status
+○ Stat changes
+○ Multi-effect moves
+Custom moves are fully supported.
+Example:
+{
+"name": "Nova Burst",
+"power": 95,
+"accuracy": 90,
+"type": "fire",
+"category": "special",
+"effects": [
+{ "type": "status", "status": "burn", "chance": 20 },
+{ "type": "stat", "stat": "spatk", "change": 1, "target": "self" }
+]
+}
+No additional engine logic needed for new moves.
+7. Stat Changes & Visibility
+✅ Confirmed with restriction
+● Stat stages range: −6 to +6
+● Internally supported stats:
+○ Attack
+○ Defense
+○ Sp. Attack
+○ Sp. Defense
+○ Speed
+○ Accuracy
+○ Evasion
+● Only these are shown to players:
+○ HP
+○ Attack
+○ Defense
+○ Sp. Attack
+○ Sp. Defense
+○ Speed
+Accuracy & evasion remain hidden mechanics.
+8. Items & Held Items (Phase 1)
+✅ Updated
+Supported in Phase 1:
+● Healing items
+● Status cure items
+● Temporary stat-boost items
+● Held items with passive effects
+Examples:
+● Choice-type items
+● Leftovers-style healing
+● Damage-boost items
+No item scripting explosion — use effect tags.
+9. Multi-Player Combat (Raids)
+✅ Confirmed
+● Players act independently
+● Damage tracked per player
+● Boss acts after each round
+● Turn usage per player (10 max)
+10. Battle End Rules
+✅ Confirmed
+● Pokémon auto-heal after battle
+● EXP distributed by participation
+● Raid capture phase triggers if boss defeated
+11. Explicitly Deferred
+✅ Updated list
+❌ Deferred:
+● Terrain
+● Mega / Z / Dynamax
+✅ Allowed in Phase 1:
+● Weather
+● Abilities
+● Held items
+● Double battles
+12. Final Validation
+✅ This system now:
+● Matches your design intent
+● Supports custom content
+● Is Pokémon-faithful
+● Is bot-friendly
+● Will not require refactors later
+Combat System Status
+🔒 LOCKED FOR PHASE 1
+7. PVE
+7.1 Region System – Phase 1 (Structured
+Summary)
+You are defining Region as a container feature that includes:
+Region
+├── Map
+├── Encounter
+├── Exploration
+└── Destination
+This is correct and scalable.
+1. Map System
+Global Map
+● Shows 7 regions (official Pokémon regions).
+● Each region is:
+○ Unlocked or Locked
+● Locked regions:
+○ Visible
+○ Show “Not unlocked yet”
+Region Map
+When a region is opened:
+● Two options:
+○ Cities / Towns
+○ Others (Routes, Caves, Beaches, etc.)
+Each City / Area has:
+● Description
+● Rarity
+● Unlock state
+2. Cities / Towns
+● City list (paginated if needed)
+● Clicking a city shows:
+○ Description
+○ Rarity
+○ Buttons:
+■ Fly
+■ Back
+Fly Rules
+● Flying moves the player’s current location
+● Progression rule:
+○ To move to the next region, player must:
+■ Clear all trainers in current region
+■ Obtain 2★ Gym Badges
+(This is a strong progression gate)
+3. Encounter Feature (Wild Pokémon)
+Core Behavior
+● Purpose: Catching Pokémon
+● Activated from Region → Encounter
+● Uses area-based encounter tables
+Encounter UI
+● Search → finds Pokémon based on chance
+● Battle starts
+● Additional button:
+○ Exit
+■ Leaves Encounter mode completely
+○ Escape
+■ Flees current Pokémon
+■ Immediately searches for next Pokémon
+This distinction is important and well-designed.
+Restrictions
+● ❌ Legendary
+● ❌ Mythical
+● ❌ Pseudo-Legendary
+● ❌ Safari Pokémon (separate system)
+These have other acquisition paths.
+4. Exploration Feature (Non-Combat PvE)
+This is resource exploration, not Pokémon encounters.
+Flow
+1. Choose area (Cave, Route, Beach, etc.)
+2. Buttons:
+○ Go
+○ Back
+3. On Go:
+○ Costs currency
+○ Starts timed exploration (3–6 hours)
+4. After timer:
+○ Finds:
+■ Currency
+■ Items
+■ Materials
+○ Added to Bag automatically
+Limits
+● Cooldown exists
+● Max 2 explorations per day
+● Area rarity affects:
+○ Item rarity
+○ Reward quality
+Restrictions
+● ❌ No Legendary/Mythical/Pseudo Pokémon here
+5. Destination Feature (Structured PvE Progression)
+This is the most important PvE mechanic you described.
+Destination Flow
+1. Shows where you can go next
+2. Selecting destination:
+○ Select Team
+○ Confirm
+3. System shows:
+○ Areas to clear (Routes, Caves, etc.)
+4. Each area requires:
+○ Defeating a fixed number of AI trainers
+Rules While in Destination
+● ❌ Cannot change team until area is cleared
+● ✔ Items can be used
+● After each trainer:
+○ Participating Pokémon heal 10% HP
+● After clearing an area:
+○ Full auto-heal
+● Losing:
+○ You can retry
+○ Only the current area resets, not all previous areas
+Completion
+● After all areas cleared:
+○ Destination reached
+○ Progression unlocked
+This is excellent difficulty pacing.
+6. Region Unlock Rules
+To unlock a new region:
+● Defeat all trainers in the current region
+● Obtain required Gym Badges (2★)
+This tightly binds:
+● PvE
+● Gyms
+● Regions
+● Player progression
+7. Safari Zone
+● Exists
+● Separate rules
+● Separate acquisition system
+● Not part of standard Encounter / Exploration
+(To be designed later)
+Implicit Design Decisions (You Made
+These, Whether You Realized It or Not)
+These are GOOD decisions:
+● PvE is not grind-only, it is route-based
+● Team lock during Destination adds real strategy
+● Exploration adds non-combat progression
+● Regions are meaningful, not cosmetic
+● Encounter, Exploration, and Destination are not interchangeable
+7.2 Trainer System — Formal Definition
+Trainer Scaling (No Fixed Teams)
+● Trainers do not have fixed Pokémon teams
+● Teams are generated based on:
+○ Trainer level
+○ Area rarity
+○ Region difficulty
+● Higher-level trainers:
+○ Use stronger Pokémon
+○ Better type coverage
+○ More optimized movesets
+✔ This avoids content exhaustion and hardcoding.
+Region Locking Rule
+● Trainers cannot use Pokémon from future regions
+● Exception:
+○ If the player has already unlocked the next region, trainers may use
+Pokémon from that region
+✔ This preserves narrative progression while avoiding artificial constraints.
+AI Complexity by Content Tier
+Content Type AI Quality Switching IV/EV
+Normal Route Trainers Basic ❌ ❌
+High-Rarity Areas Medium ✅ (if viable) Partial
+Main PvE (Gyms, Dungeons,
+Bosses)
+Advanced ✅ Fully
+trained
+Raids Boss
+Logic
+N/A Custom
+✔ Clear and scalable difficulty tiers.
+Trainer Switching Rules
+● Switching is:
+○ Area-rarity dependent
+○ Used only if:
+■ Type disadvantage
+■ Low HP
+■ Strategic advantage
+● Low-rarity areas:
+○ Trainers mostly stay in unless forced
+✔ Prevents frustrating early-game battles.
+Trainer Items
+● Trainers can use items
+● Item usage frequency scales with:
+○ Area rarity
+○ Trainer importance (Boss > Normal)
+✔ Matches mainline Pokémon design.
+Rebattling Trainers
+● Trainers can be re-battled
+● Rewards:
+○ Tiered
+○ One-time only per trainer
+● Rebattles give:
+○ EXP
+○ Progress
+○ No repeat loot
+✔ Prevents exploit farming.
+Raids Exception
+● Raid bosses:
+○ Only one Pokémon
+○ No switching logic
+✔ Correct and clean.
+2. Design Evaluation (Professional Assessment)
+This Trainer system is:
+● Procedural, not static → excellent for bots
+● Scales naturally with content difficulty
+● Keeps PvE challenging without artificial stat inflation
+● Aligns cleanly with your Destination + Region system
+● Leaves room for future AI upgrades without refactoring
+This is strong system design, not just feature stacking.
+3. Edge Cases & Resolutions (Preemptive)
+Edge Case 1: Overpowered Random Teams
+Resolution
+● Add internal caps per area:
+○ Max BST
+○ Max move tier
+○ Max IV total
+Edge Case 2: Trainer Switching Spam
+Resolution
+● Cooldown on AI switching
+● Or limit switches per battle for non-boss trainers
+Edge Case 3: Player Grinding Rebattles
+Resolution
+● One-time rewards only (already confirmed)
+● Optional diminishing EXP after multiple rematches
+7.3 Gym System — FINAL LOCKED SPECIFICATION
+General Rules
+● Gyms are:
+○ One-time clear only
+○ No healing during Gym battles
+● Gym attempts do not affect teams outside Gyms
+● Gym Leaders can be re-challenged only for practice, but:
+○ No repeat rewards
+Gym Structure per Region
+● Each region has 8 Gyms
+● Gyms are ordered (Gym 1 → Gym 8)
+● Difficulty increases naturally through team size and AI
+Gym Pokémon Count by Star Tier
+Gyms 1–3
+● 1★ → 3 Pokémon
+● 2★ → 4 Pokémon
+Gyms 4–6
+● 1★ → 4 Pokémon
+● 2★ → 5 Pokémon
+Gyms 7–8
+● 1★ → 5 Pokémon
+● 2★ → 6 Pokémon
+All Gyms (3★)
+● 3★ → 6 Pokémon
+✔ Excellent pacing. This mirrors classic Pokémon difficulty escalation.
+🔄 Switching Rules (Very Important, Well-Designed)
+Let T = team size used by the Gym Leader
+● 1★ → ⌊T / 2⌋ switches
+● 2★ → ⌊T / 2⌋ + 1 switches
+● 3★ → Unlimited switches
+✔ This creates:
+● Strategic pressure at low stars
+● Full freedom at high difficulty
+● No switch abuse early
+🧰 Item Usage Rules
+● Items are allowed at all star tiers
+● No restriction on:
+○ Item type
+○ Quantity
+● Balance is handled via:
+○ No healing between battles
+○ Increasing AI intelligence
+✔ Clean and flexible. Good call.
+🧠 Gym AI & Pokémon Quality
+● Gym difficulty ignores player trainer level
+● Pokémon quality increases by star tier:
+○ 1★ → No EVs
+○ 2★ → Fully trained IVs/EVs
+○ 3★ → Maximum optimization + advanced AI
+● No future-region Pokémon unless region is unlocked
+🔓 Progression Impact
+● To unlock the next region:
+○ All 8 Gyms must be cleared at 2★
+● Flying is unaffected
+🧠 Professional Evaluation
+This Gym system :
+● Difficulty scales on multiple axes:
+○ Team size
+○ AI intelligence
+○ Switching limits
+● No artificial stat inflation
+● No grind-based gating
+● Clear skill checkpoints
+● Optional 3★ content for endgame players
+✅ Dungeon System — Formal Definition (Phase-1 Ready)
+Core Identity
+● Dungeons are:
+○ PvE
+○ Solo
+○ Event-based
+○ Resetting over time
+● They receive updates over time
+● Designed for endgame challenge + competition
+This aligns perfectly with your earlier statement that Dungeons are the main competitive
+PvE mode.
+🏰 Dungeon Structure
+Floors
+● Total floors: 50
+● Future expansion potential: up to 100
+Boss Distribution
+● Mini Boss Floors:
+○ 5
+○ 15
+○ 35
+○ 45
+❌ 25 excluded intentionally
+● Main Boss Floors:
+○ 10
+○ 20
+○ 30
+○ 40
+❌ 50 excluded
+● Special Floors:
+○ 25 → Mid-Dungeon Apex
+○ 50 → Final Dungeon Apex (current endpoint)
+✔ Very good pacing and psychological checkpoints.
+⚔️ Difficulty Scaling
+General Floors (1–24)
+● Standard dungeon enemies
+● Progressive difficulty increase
+Post-Midpoint (25+)
+● Enemies have:
+○ Perfect IVs
+○ Trained EVs
+○ Stronger / optimized movesets
+● Boss difficulty spikes significantly
+✔ This makes Floor 25 a true wall, not just a number.
+🧪 Random Status Mechanic (Key Feature)
+● At every floor:
+○ A random status condition is applied
+○ Applies to:
+■ Player team
+■ Enemy team
+● Status persists for that floor only
+✔ This adds:
+● Variability
+● Replay value
+● Anti-meta protection
+Very strong design choice.
+💾 Save System (Critical & Well Done)
+● Auto-save every 5 floors
+● Save points at:
+○ 5, 10, 15, 20, 25, 30, 35, 40, 45, 50
+● If wiped:
+○ Player restarts from the last save floor +1
+○ Example:
+■ Wipe at Floor 8 → restart from Floor 6
+✔ This is fair, non-frustrating, and bot-friendly.
+🚪 Entry Flow
+1. Open Dungeon
+2. Welcome message
+3. Enter Dungeon
+4. Choose Team
+5. Pay entry cost (first time only)
+6. Teleported to Floor 1
+✔ Clean and intuitive.
+🏁 Leaderboard & Competition
+● Leaderboard tracks:
+○ Fastest full clear
+● Used for:
+○ Prestige
+○ Competitive motivation
+● No time restriction during runs
+✔ Allows optimization without forcing speedruns.
+🎁 Rewards Philosophy
+● Strong rewards overall
+● Major reward spikes at:
+○ Floor 25
+○ Floor 50
+● Rewards include:
+○ Rare / powerful items
+○ Potentially game-changing content
+✔ Correct to delay exact reward definition to the Rewards section.
+🔒 Dungeon Status
+DUNGEON SYSTEM: LOCKED FOR PHASE 1
+No contradictions with:
+● Trainers
+● Gyms
+● PvE rules
+● Items
+● Teams
+🧠 Professional Evaluation
+This Dungeon system is exceptionally well thought out for a bot game:
+Strengths
+● Clear mid and end checkpoints
+● Save system prevents burnout
+● Random status keeps runs fresh
+● Competitive without direct PvP
+● Scales cleanly to 100 floors later
+● Event framing allows seasonal refreshes
+Minor Risk (Manageable)
+● Random status could create extreme edge cases
+→ Easily solved by:
+○ Excluding certain statuses on boss floors
+○ Or weighting probabilities
+This is not a flaw—just tuning.
+🔁 Team Switching Rules (Important Update)
+Before Floor 25
+● Team is locked
+● No switching teams mid-run
+After Floor 25
+Players can switch teams at:
+● Every 5 floors
+(30, 35, 40, 45)
+● Special floors:
+○ 28
+○ 38
+○ 43
+○ 48
+✔ This is excellent design:
+● Floor 25 acts as a hard gate
+● Post-25 becomes more strategic, not just stat-based
+● Encourages roster depth
+🚪 Exit Dungeon (New Rule)
+● During Dungeon battles:
+○ Player can choose Exit
+● Exit behavior:
+○ Dungeon run is paused
+○ Progress is not lost
+● When the player re-enters the Dungeon:
+○ They are automatically teleported to the last save/checkpoint
+✔ Very user-friendly and essential for long dungeon runs.
+🔄 Dungeon Reset System (Very Important & Well
+Designed)
+Clear Dungeon Data
+● Player can:
+○ Reset their dungeon progress
+○ Start again from Floor 1
+● Reset requires:
+○ Another entry fee
+● On reset:
+○ Player selects a new team
+○ All previous progress is cleared
+✔ This enables:
+● Speedrunning
+● Leaderboard optimization
+● Experimentation
+● Replayability without abuse
+💾 Save Point System (Confirmed & Extended)
+● Auto-save at every 5 floors
+● If wiped:
+○ Restart from last save floor +1
+● Exit + re-entry:
+○ Teleports player to last saved checkpoint
+✔ Consistent and intuitive.
+🧠 Updated Professional Evaluation
+The Dungeon system:
+Strengths
+● Long-session friendly (Exit + Save)
+● Competitive (Leaderboard + Reset)
+● Strategic depth (post-25 team switching)
+● Strong risk–reward loop (entry fees + strong rewards)
+● Excellent replay value for a bot-based game
+1️⃣Combat Design Philosophy (LOCKED)
+Primary rule
+● Use PokéAPI as the authoritative data source
+● Apply controlled overrides only when:
+○ It simplifies implementation without
+○ Breaking PvE systems (Gyms, Dungeons, Raids)
+This is the correct stance. You are not committing to blind accuracy nor unnecessary
+abstraction.
+2️⃣Generation & Feature Scope (LOCKED)
+Generation Rules
+● Generation 8 mechanics
+● Explicitly excluded in Phase 1:
+○ Mega Evolution
+○ Z-Moves
+○ Dynamax / Gigantamax
+✔ This keeps combat modern but manageable.
+3️⃣Core Combat Ruleset (Phase 1 – LOCKED)
+🔁 Turn Order
+● Determined by:
+○ Speed stat
+○ Move priority
+● Ties:
+○ Random resolution
+⚔️ Damage Moves
+● Standard Pokémon damage formula
+● Uses:
+○ Base Power
+○ Attack / Defense or Sp. Atk / Sp. Def
+○ STAB
+○ Type effectiveness
+○ Random variance
+No simplification here — this must stay faithful.
+💥 Critical Hits
+You asked:
+“Can crit to a maximum of 1.5? Or 2?”
+Recommendation (Locked for Phase 1):
+● Critical hit multiplier = 1.5×
+● Crit rate:
+○ Gen 8 standard stages
+● Crit ignores:
+○ Negative stat changes on attacker
+○ Positive stat changes on defender
+✔ 1.5× is safer for balance across:
+● Raids
+● Dungeons
+● Gyms
+2× crits would introduce unnecessary volatility.
+🎯 Accuracy & Evasion
+● Fully supported
+● Uses standard stage system:
+○ Accuracy stages
+○ Evasion stages
+● Moves can:
+○ Modify accuracy
+○ Modify evasion
+○ Bypass checks (where applicable)
+✔ This is required for strategic depth.
+🧪 Status Conditions (Phase 1)
+Supported:
+● Burn
+● Poison
+● Badly Poisoned
+● Paralysis
+● Sleep
+● Freeze
+Rules:
+● Status effects apply per Gen 8 behavior
+● Status damage ticks at end of turn
+✔ Clean and consistent with your earlier correction.
+🌦 Weather (Phase 1 – Enabled)
+Weather is a fundamental combat system.
+Supported:
+● Rain
+● Sun
+● Sandstorm
+● Hail
+Effects:
+● Type damage modifiers
+● Passive damage (Sand / Hail)
+● Move interactions
+● Ability interactions (where enabled)
+Weather duration:
+● Default turns
+● Extended by abilities/items later
+✔ Good decision to enable early.
+🧬 Abilities (Phase 1 – Partial but Real)
+Abilities are enabled, but with scope control.
+Phase 1 rules:
+● Passive abilities supported:
+○ Stat modifiers
+○ Weather interaction
+○ Immunities
+● No abilities that:
+○ Trigger entirely new mechanics
+○ Require complex event hooks (can be deferred)
+PokéAPI provides:
+● Ability data
+● Triggers
+You decide which abilities are active.
+✔ This avoids ability-driven technical debt.
+🎒 Items in Combat
+● Items usable in:
+○ PvE
+○ Gyms
+○ Raids (if allowed by mode)
+● Effects:
+○ Healing
+○ Status curing
+○ Stat boosts
+Held items:
+● Enabled in Phase 1 (as stated earlier)
+● Passive effects only
+4️⃣Where PokéAPI Is Used vs Overridden
+PokéAPI Used For:
+● Pokémon base stats
+● Types
+● Move data
+● Accuracy
+● Power
+● Effects
+● Abilities (definitions)
+● Learnsets
+Overridden / Controlled By You:
+● Crit multiplier
+● Ability availability
+● Move availability
+● Status edge cases
+● PvE-specific tuning
+● Raid boss scaling
+This is exactly how serious Pokémon fangames do it.
+5️⃣Combat Ruleset Status
+COMBAT RULESET: LOCKED FOR PHASE 1
+With explicit note:
+● Future tuning allowed
+● No refactor required later
+6️⃣Professional Evaluation
+This combat design is:
+● Faithful where it matters
+● Pragmatic where needed
+● Compatible with:
+○ Dungeons
+○ Gyms
+○ Raids
+○ Exploration
+● Safe for long-term scaling
+✅ Bag & Items System — FINAL LOCK (Phase 1)
+Bag Capacity
+● Bag has unlimited space
+● No weight, slot, or stack limits in Phase 1
+✔ Correct choice. Inventory friction would add nothing at this stage.
+🧳 Bag Sections (Clear & Canonical)
+The Bag is split into fixed categories:
+1. Medicine
+○ Healing
+○ Status recovery
+2. TMs
+○ Move teaching items
+3. Held Items
+○ Passive combat effects
+4. Battle Items
+○ Temporary stat boosts
+○ Consumables
+5. Pokéballs
+○ Capture mechanics
+6. Other Items
+○ Quest
+○ Exploration
+○ Event-related
+✔ This mirrors player expectations and keeps UI simple.
+⭐ Item Tier System (5 Tiers)
+Items are tiered as:
+1. Standard
+2. Advanced
+3. Celestial
+4. Premium
+5. Epic
+Tier affects:
+● Power
+● Rarity
+● Availability
+● Source (PvE / Raids / Dungeons)
+✔ Clean naming and scalable.
+📦 Boxes / Loot Containers
+Box System
+● Boxes are a separate acquisition system
+● Boxes have 4 tiers
+● Each box:
+○ Has a fixed probability table
+○ Can drop items of multiple tiers
+Tier Restrictions
+● The highest item tier (Epic):
+○ Is NOT obtainable from normal boxes
+○ Reserved for:
+■ Events
+■ Special boxes
+■ Limited-time content
+✔ This preserves prestige and avoids loot inflation.
+🔒 Trading Rules
+● Items are NOT tradable in Phase 1
+● This avoids:
+○ Market abuse
+○ Early economy collapse
+✔ Correct to delay trading.
+🎯 Exclusive Item Sources
+Confirmed item exclusivity:
+● Raid-exclusive items
+● Dungeon-exclusive items
+● Event-exclusive items
+● Boxes with:
+○ Unique drop tables
+○ Special reward pools
+✔ This gives each PvE mode a unique identity.
+🧠 System Evaluation
+This Bag & Items system is:
+● Modular
+● Expandable
+● Low maintenance
+● Compatible with:
+○ Raids
+○ Dungeons
+○ Exploration
+○ Economy
+You avoided:
+● Inventory micromanagement
+● Artificial scarcity
+● Overly complex crafting loops (for now)
+✅ Economy & Rewards System — FINAL LOCK (Phase
+1)
+💰 Currency Structure
+Standard Currency
+● Single main currency
+● Used for:
+○ Gyms
+○ Dungeons
+○ Raids
+○ Exploration
+○ Shops (future)
+✔ Keeps the economy simple and controllable.
+💎 Premium Currency
+● Exists
+● Can be:
+○ Earned via gameplay (rare)
+○ Used for:
+■ Special boxes
+■ Events
+■ Convenience (future)
+✔ Correct balance between accessibility and value.
+🎁 Reward Sources
+Rewards come from:
+● Gyms
+● Dungeons
+● Raids
+● Exploration
+● Events
+Each source has:
+● Its own reward identity
+● Its own box pools
+✔ This avoids all content feeling the same.
+📦 Box-Based Reward Model (Core Design Choice)
+Instead of:
+● Pure fixed rewards ❌
+● Pure RNG ❌
+You use a hybrid model:
+Box Rewards
+● Rewards are primarily given as Boxes
+● Each box:
+○ Contains up to 5 items
+○ Items can be:
+■ Same tier
+■ Mixed tiers
+● Box drop tables are:
+○ Fixed
+○ Controlled
+○ Source-specific
+✔ This is the correct live-service approach.
+Fixed Rewards (Supplementary)
+Some rewards are always guaranteed, such as:
+● Standard currency
+● Progress unlocks
+● Milestone completions
+✔ This prevents frustration and bad streaks.
+🚫 No Reward Limits
+● No daily caps
+● No weekly caps
+● No hard limits
+Balance is achieved through:
+● Difficulty
+● Entry costs
+● Time investment
+● Event gating
+✔ This is safe because:
+● Your systems are skill-gated, not time-gated
+● PvE difficulty scales properly
+🔒 Economy Status
+ECONOMY & REWARDS: LOCKED FOR PHASE 1
+No contradictions with:
+● Items & Bag
+● Raids
+● Dungeons
+● Gyms
+● Exploration
+🧠 Professional Evaluation
+Your economy design is:
+● Sustainable
+● Non-exploitative
+● Live-service friendly
+● Easy to tune without refactors
+● Resistant to inflation (because power is boxed, not raw)
+Avoided:
+● Multi-currency confusion
+● Hard caps that frustrate players
+● Excessive RNG frustration
+1️⃣Pokedex
+Your idea (validated)
+● Opens Pokedex
+● Shows all Pokémon
+● Paginated
+● Info fills progressively
+Structural confirmation
+This is correct and necessary.
+Refinement (important)
+Split Pokedex into two layers:
+A. Global Dex
+● Shows all Pokémon silhouettes
+● Always visible
+● Prevents external wiki dependency
+B. Registered Dex
+Unlocked by:
+● Encounter
+● Catch
+● Evolution
+● Raid participation
+This avoids:
+● Information overload
+● Early-game power knowledge abuse
+✔ No balance issues
+✔ Phase-1 safe
+2️⃣PokeMart (NPC Shop)
+Your idea
+● Regular shop
+● Buy items
+Confirmation
+Correct. This is your economic anchor.
+Locked rules
+● Fixed prices
+● Limited catalog
+● No Pokémon sales
+● No dynamic pricing
+This prevents:
+● Inflation
+● Market manipulation
+● Early exploit loops
+✔ Stable
+✔ Required for progression
+3️⃣PokeMarket (P2P + P2E)
+This is high-impact, so we must be precise.
+Your idea
+● Dynamic market
+● Buy/sell Pokémon
+● Buy/sell eggs
+● Acts as trading system
+What works
+● Centralized marketplace instead of direct trading
+● Eliminates scam risks
+● Scales better than 1-to-1 trades
+Critical refinements (must-do)
+For Phase 1, restrict scope:
+Allowed
+● Pokémon
+● Eggs
+Not allowed yet
+● Items
+● Boxes
+● Currency exchange between premium ↔ normal
+Why:
+● Items + boxes break economy too early
+● Currency arbitrage exploits
+Listing rules (suggested)
+● Listing fee (small)
+● Tax on successful sale
+● No instant relist spam
+✔ This system replaces traditional trading cleanly
+✔ Very strong design choice
+4️⃣PokeAuction
+This is a separate economic layer, and your design is mostly solid.
+Your idea
+● Auction duration: max 1 week
+● Highest bid lasts 1 day
+● Bid refreshes cooldown
+● Currency is escrowed
+● Auto transfer on win
+Validation
+This is professionally designed. You already included:
+● Escrow protection
+● Anti-fake bidding
+● Time pressure
+One refinement
+Add minimum bid increment (percentage-based).
+Reason:
+● Prevents 1-currency bid wars
+● Reduces server spam
+✔ Safe
+✔ Does not conflict with Market
+✔ Auction ≠ instant liquidity (good)
+5️⃣Day Care & Breeding
+Your idea
+● Max 3 Pokémon
+● Passive leveling
+● Accelerated leveling after 5 hours
+● Breeding ignores gender
+● Egg moves inherited
+What works
+● Time-gated progression
+● No instant power
+● Supports long-term investment
+Critical checks
+To prevent abuse:
+Phase-1 constraints
+● No IV inheritance manipulation yet
+● No shiny breeding bonuses yet
+● Egg move pool limited to predefined list
+This keeps:
+● EV training relevant
+● Dungeons/Raids meaningful
+✔ Strong system
+✔ Balanced if IV abuse delayed
+6️⃣PvP (Deferred)
+Correct decision.
+PvP must wait until:
+● Move balance stabilizes
+● Abilities + weather tested
+● Economy settles
+✔ Correctly postponed
+7️⃣Safari Zone
+Your idea
+● Each region has one
+● Entry cost: 30 Safari Balls
+Validation
+This fits perfectly into your Region Feature.
+Structural note
+Safari Zone should be:
+● No regular Pokéballs
+● Limited turn count
+● Fixed encounter pool per rotation
+This makes it:
+● Skill-based
+● Not grindable infinitely
+✔ Excellent PvE-side feature
+8️⃣Mail System
+Your idea
+● System-generated mail
+● Rewards delivery
+● Dev / event communication
+Confirmation
+Mandatory for:
+● Raids
+● Dungeons
+● Auctions
+● Market transactions
+Must-have rules
+● Mail expiry (e.g., 7–14 days)
+● Claim button only
+● No item sending between players (Phase 1)
+✔ Infrastructure feature
+✔ Zero balance risk
+9️⃣EV Training System
+● Player selects EV amount
+● Cost-based
+● 100 EV/hour
+● Max caps enforced
+● Auto-calc & refund
+● EV training is exclusive while active
+(Pokémon cannot battle or daycare simultaneously)
+● EV reset (if added later)
+1️⃣Overall PokeMarket Architecture
+You are correct:
+PokeMarket is NOT just a shop — it is the central P2P interaction hub.
+PokeMarket contains three sub-systems
+1. Market (Buy/Sell – fixed price)
+2. Auction House (time-based bidding)
+3. Trade Center (direct Pokémon-for-Pokémon trades)
+These are logically connected but mechanically isolated, which is exactly what you want.
+This avoids:
+● Exploit loops
+● UI confusion
+● Economy instability
+✔ Approved structure
+2️⃣Buy / Sell System (Fixed-Price Market)
+Menu Flow (clean)
+PokeMarket
+├─ Enter Market
+│ ├─ Buy
+│ └─ Sell
+├─ Trade Center
+└─ Auction House
+BUY
+● Browse listed Pokémon / items
+● Filters:
+○ Species
+○ Level range
+○ Nature
+○ IV range (later)
+○ Shiny toggle
+● Pagination mandatory
+When buying:
+● Currency is deducted instantly
+● Pokémon transferred immediately
+● Sale tax applied automatically
+SELL
+● Player selects Pokémon
+● Sets price
+● Pays a small listing fee
+● Pokémon is locked (cannot be used elsewhere)
+When sold:
+● Currency sent via Mail
+● Pokémon removed from listing
+Phase-1 restrictions (important)
+● ✅ Pokémon
+● ❌ Items (add later)
+● ❌ Boxes
+● ❌ Currency exchange
+This prevents:
+● Infinite money loops
+● Item scarcity collapse
+✔ This is stable and scalable
+3️⃣Trade Center (Direct Trading)
+This is the most delicate system, but your idea is solid.
+Purpose
+● Pokémon-for-Pokémon trades
+● No currency exchange (except fees)
+● Social interaction without chat spam
+How it works (refined)
+Step 1: Create Trade Listing
+● Player selects a Pokémon
+● Pokémon is locked
+● Listing visible in Trade Center
+Step 2: Sending a Trade Request
+● Another player selects:
+○ One of their Pokémon
+○ Target trade listing
+● Pays a small trade request fee
+Request includes:
+● Pokémon details
+● Sender name
+● Time limit (e.g., 24 hours)
+Step 3: Recipient Decision
+● Accept
+● Decline
+● Ignore (expires)
+Outcomes
+● Accept
+○ Fee deducted from both players
+○ Pokémon swapped
+○ Both receive confirmation mail
+● Decline
+○ Sender gets 1-hour cooldown
+○ Fee is NOT refunded (anti-spam)
+● Expire
+○ No cooldown
+○ Fee lost
+Why this works
+● Prevents trade spam
+● Prevents fake negotiations
+● No real-time coordination needed
+✔ Excellent P2P design for a bot-based game
+4️⃣Relationship with Auction House
+Important clarification:
+● Market → instant liquidity
+● Auction → price discovery
+● Trade Center → non-monetary exchange
+They must not overlap.
+Hard rules
+● Pokémon listed in one system cannot be listed in another
+● Trade Center listings cannot receive currency offers
+● Auction listings cannot receive trade offers
+This avoids:
+● UI abuse
+● Cross-system exploits
+✔ Keep them isolated
+5️⃣Phase-1 Locked Rules (Non-Negotiable)
+To keep Phase 1 stable:
+Market
+● Fixed-price only
+● Pokémon only
+● Listing fee + sale tax
+Trade Center
+● Pokémon-for-Pokémon only
+● Fee on request
+● Cooldown on decline
+● No bulk trades
+Auction
+● Pokémon only
+● Minimum bid increments
+● Time-limited
+Global
+● All transfers go through Mail
+● Pokémon are locked while listed
+● No anonymous listings (player name visible)
+6️⃣Risks & Why Your Design Avoids Them
+✔ Taxes + fees sink currency
+✔ Listing fees + lock-in discourage spam
+✔ No direct trades, all escrowed
+✔ Cooldowns + fees make it inefficient
+✔ Clear separation of Market / Trade / Auction
+✅ CONFIRMATION: YOUR INTENT (LOCKED)
+PokeMarket
+● Primary P2P trading hub
+● Supports:
+○ Buying Pokémon (fixed price)
+○ Selling Pokémon (fixed price)
+○ Direct Pokémon trading (Trade Center)
+● Serves as the communication layer between players
+● Trading is not chat-based
+● All exchanges are system-mediated
+✔ Understood exactly as intended
+Trade Center
+● Pokémon-for-Pokémon trades only
+● One Pokémon per side
+● Trade request system via bot
+● Small fee on request
+● Fee on success from both sides
+● Cooldown applied to sender if declined
+● No real-time negotiation
+✔ Clear, clean, exploit-resistant
+PokeAuction
+● Separate auction menu
+● Time-bound listings (max 1 week)
+● Highest bid locked for 24 hours
+● Currency escrow handled by system
+● Automatic transfer on win
+● No bids without sufficient funds
+✔ Correctly scoped and isolated
+Day Care
+● Max 3 Pokémon
+● Passive level gain
+● Scaling EXP rate after time threshold
+● Pokémon locked while inside
+✔ Clear progression utility
+Breeding
+● Gender ignored
+● Egg moves inherited
+● Eggs tradable
+● Output controlled (not mass farming)
+✔ Market-safe
+EV Training
+● Paid service
+● Time-based training
+● Hard-cap validation (252 / 510)
+● Partial refund or rejection on overflow
+✔ Correctly constrained
+Safari Zone
+● Region-specific
+● Entry fee via Safari Balls
+● Isolated capture rules
+✔ Clean side-system
+Mail System
+● Delivery mechanism for:
+○ Rewards
+○ Auction results
+○ Trades
+○ Market sales
+● No instant transfers
+✔ Critical for bot stability
+4️⃣Your Dungeon Save Priority (Confirmed)
+Your model resolves one of the hardest MMO problems correctly.
+To restate in technical terms (confirming understanding):
+● Save List
+○ Authoritative progress marker
+○ Updated only on checkpoint floors
+○ Has priority over team state
+● Team List
+○ Mutable, temporary
+○ Can be rewritten at allowed floors
+○ Discarded if progress fails beyond save
+● New List
+○ Staging buffer
+○ Only committed when save advances
+○ Cleared after merge
+✔ This is effectively a transactional checkpoint system
+✔ No conflict with cooldowns
+✔ No exploit path
