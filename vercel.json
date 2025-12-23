@@ -1,0 +1,9 @@
+{
+  "buildCommand": "cd client && npm run build",
+  "outputDirectory": "client/build",
+  "env": {
+    "REACT_APP_API_URL": "@react_app_api_url",
+    "REACT_APP_TELEGRAM_BOT_ID": "@react_app_telegram_bot_id",
+    "REACT_APP_ENVIRONMENT": "@react_app_environment"
+  }
+}
