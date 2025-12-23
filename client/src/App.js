@@ -21,19 +21,22 @@ function App() {
   const handleLogin = async (username) => {
     try {
       setError(null);
-      const response = await fetch(`${API_URL}/api/users/login`, {
-        method: 'POST',
+      // Create a simple ID from username (in real app, would use Telegram ID)
+      const telegramId = username.toLowerCase().replace(/[^a-z0-9]/g, '');
+      
+      const response = await fetch(`${API_URL}/api/users/${telegramId}`, {
+        method: 'GET',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username }),
       });
 
       if (!response.ok) throw new Error('Login failed');
       
       const data = await response.json();
+      data.username = username; // Add username for display
       setUser(data);
       localStorage.setItem('user', JSON.stringify(data));
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Failed to connect to game server');
     }
   };
 
