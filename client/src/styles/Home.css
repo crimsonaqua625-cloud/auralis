@@ -1,0 +1,204 @@
+/* Home Screen Styling */
+.home-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #ef5350 0%, #f57c00 50%, #fbc02d 100%);
+  display: flex;
+  flex-direction: column;
+  font-family: 'Arial Black', Arial, sans-serif;
+  color: #333;
+}
+
+.home-header {
+  background: linear-gradient(to right, #ef5350, #f57c00);
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  border-bottom: 4px solid #fff;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+}
+
+.game-title {
+  font-size: 36px;
+  font-weight: bold;
+  color: #fff;
+  margin: 0;
+  text-shadow: 3px 3px 0 #000, -1px -1px 0 #ffed4e;
+  letter-spacing: 2px;
+}
+
+.player-info {
+  background: rgba(255, 255, 255, 0.3);
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 2px solid #fff;
+}
+
+.player-name {
+  margin: 0;
+  color: #fff;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.player-level {
+  margin: 5px 0 0 0;
+  color: #fff;
+  font-size: 14px;
+}
+
+.logout-button {
+  background: #c62828;
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+  font-weight: bold;
+}
+
+.logout-button:hover {
+  transform: scale(1.1);
+  background: #b71c1c;
+}
+
+.home-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+  gap: 20px;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+  flex: 1;
+}
+
+.menu-button {
+  background: linear-gradient(135deg, #fff9c4 0%, #fffde7 100%);
+  border: 3px solid #f57f17;
+  border-radius: 50%;
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  font-weight: bold;
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), transparent);
+  pointer-events: none;
+}
+
+.menu-button:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #ffeb3b 0%, #fff59d 100%);
+}
+
+.menu-button:active {
+  transform: scale(0.95);
+}
+
+.menu-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.menu-label {
+  font-size: 10px;
+  text-align: center;
+  color: #f57f17;
+  line-height: 1.2;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.status-bar {
+  background: #fff;
+  border: 3px solid #f57f17;
+  border-radius: 12px;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.money-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #f57f17;
+}
+
+.money-icon {
+  font-size: 24px;
+}
+
+.money-value {
+  color: #f57f17;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .menu-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .menu-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .game-title {
+    font-size: 28px;
+  }
+
+  .home-main {
+    padding: 15px;
+    gap: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .menu-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .game-title {
+    font-size: 20px;
+  }
+
+  .header-content {
+    gap: 10px;
+  }
+}

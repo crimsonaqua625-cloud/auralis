@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import Home from './components/Home';
 import Pokedex from './components/Pokedex';
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(null);
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -14,6 +16,7 @@ function App() {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
       setUser(JSON.parse(savedUser));
+      setCurrentPage('home');
     }
     setLoading(false);
   }, []);
@@ -21,7 +24,7 @@ function App() {
   const handleLogin = async (username) => {
     try {
       setError(null);
-      // Create a simple ID from username (in real app, would use Telegram ID)
+      // Create a simple ID from username
       const telegramId = username.toLowerCase().replace(/[^a-z0-9]/g, '');
       
       const response = await fetch(`${API_URL}/api/users/${telegramId}`, {
@@ -32,9 +35,10 @@ function App() {
       if (!response.ok) throw new Error('Login failed');
       
       const data = await response.json();
-      data.username = username; // Add username for display
+      data.username = username;
       setUser(data);
       localStorage.setItem('user', JSON.stringify(data));
+      setCurrentPage('home');
     } catch (err) {
       setError(err.message || 'Failed to connect to game server');
     }
@@ -42,7 +46,12 @@ function App() {
 
   const handleLogout = () => {
     setUser(null);
+    setCurrentPage(null);
     localStorage.removeItem('user');
+  };
+
+  const handleNavigate = (page) => {
+    setCurrentPage(page);
   };
 
   if (loading) {
@@ -51,14 +60,18 @@ function App() {
 
   return (
     <div className="App">
-      {user ? (
-        <Pokedex user={user} onLogout={handleLogout} />
-      ) : (
+      {!user ? (
         <div className="login-screen">
           <h1>🎮 Auralis</h1>
           <p>Pokémon Game</p>
           <LoginForm onLogin={handleLogin} error={error} />
         </div>
+      ) : currentPage === 'home' ? (
+        <Home user={user} onNavigate={handleNavigate} onLogout={handleLogout} />
+      ) : currentPage === 'pokedex' ? (
+        <Pokedex user={user} onBack={() => setCurrentPage('home')} />
+      ) : (
+        <Home user={user} onNavigate={handleNavigate} onLogout={handleLogout} />
       )}
     </div>
   );

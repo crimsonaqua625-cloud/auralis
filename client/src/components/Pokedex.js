@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import '../styles/Pokedex.css';
 
-export default function Pokedex({ user, onLogout }) {
+export default function Pokedex({ user, onBack }) {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -33,10 +34,10 @@ export default function Pokedex({ user, onLogout }) {
   return (
     <div className="pokedex-container">
       <div className="pokedex-header">
-        <h1>Pokédex</h1>
+        <button className="back-button" onClick={onBack}>← Back</button>
+        <h1>POKÉDEX</h1>
         <div className="user-info">
-          <p>Welcome, {user?.username || 'Player'}</p>
-          <button onClick={onLogout} className="logout-btn">Logout</button>
+          <p>{user?.username || 'Player'}</p>
         </div>
       </div>
       <input
@@ -47,29 +48,36 @@ export default function Pokedex({ user, onLogout }) {
           setSearch(e.target.value);
           setPage(1);
         }}
+        className="search-input"
       />
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <>
-          <div className="pokedex-grid">
-            {entries.map((entry) => (
-              <div key={entry._id} className="pokedex-entry">
-                <h3>{entry.name}</h3>
-                <p>#{entry.speciesId}</p>
-                <p className="types">{entry.types?.join(', ')}</p>
-                <div className="stats">
-                  <p>HP: {entry.baseStats?.hp}</p>
-                  <p>ATK: {entry.baseStats?.atk}</p>
-                  <p>DEF: {entry.baseStats?.def}</p>
+      <div className="pokedex-content">
+        {loading ? (
+          <p className="loading">Loading Pokédex...</p>
+        ) : (
+          <>
+            <div className="pokedex-grid">
+              {entries.map((entry) => (
+                <div key={entry._id} className="pokedex-entry">
+                  <h3>{entry.name}</h3>
+                  <p>#{entry.speciesId}</p>
+                  <p className="types">{entry.types?.join(', ')}</p>
+                  <div className="stats">
+                    <p>HP: {entry.baseStats?.hp}</p>
+                    <p>ATK: {entry.baseStats?.atk}</p>
+                    <p>DEF: {entry.baseStats?.def}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-          <div className="pagination">
-            <button onClick={() => setPage(Math.max(1, page - 1))}>← Prev</button>
-            <span>Page {page}</span>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      {!loading && (
+        <div className="pagination">
+          <button onClick={() => setPage(Math.max(1, page - 1))}>← Prev</button>
+          <span>Page {page}</span>
             <button onClick={() => setPage(page + 1)}>Next →</button>
           </div>
         </>
