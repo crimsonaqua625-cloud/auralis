@@ -7,10 +7,60 @@ const SERVER_URL = process.env.SERVER_URL || 'http://localhost:5000';
 
 // ====== COMMAND HANDLERS ======
 
-// Start command
+// Start command - send welcome message with quick action buttons (Open Game, Profile, Pokédex)
 bot.start((ctx) => {
-  ctx.reply(`Welcome to Auralis! A Pokémon-based adventure game.\n\n
-Use /help to see all commands.`);
+  const webAppUrl = process.env.WEB_APP_URL || process.env.REACT_APP_WEB_APP_URL || 'https://auralis-j6sps.vercel.app';
+  const welcome = `Welcome to Auralis! A Pokémon-based adventure game.\n\nUse the buttons below to get started or type /help to see all commands.`;
+
+  return ctx.reply(welcome, {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: 'Open Game', web_app: { url: webAppUrl } },
+          { text: 'Profile', callback_data: 'profile' },
+        ],
+        [
+          { text: 'Pokédex', callback_data: 'pokedex' },
+          { text: 'My Pokémon', callback_data: 'pokemon' },
+        ],
+      ],
+    },
+  });
+});
+
+// Handle inline button actions (callback_data) and reuse existing command logic
+bot.action('profile', async (ctx) => {
+  try {
+    await ctx.answerCbQuery();
+    const userId = ctx.from.id.toString();
+    const response = await axios.get(`${SERVER_URL}/api/users/${userId}`);
+    const user = response.data;
+
+    const profile = `\n👤 **Profile**\nID: ${user._id}\nUsername: ${user.username || 'Not set'}\nLevel: ${user.level}\n\n💰 Currency: ${user.currency}\n💎 Premium: ${user.premiumCurrency}\n`;
+    return ctx.reply(profile, { parse_mode: 'Markdown' });
+  } catch (error) {
+    console.error(error);
+    return ctx.reply('❌ Failed to load profile.');
+  }
+});
+
+bot.action('pokedex', async (ctx) => {
+  try {
+    await ctx.answerCbQuery();
+    const response = await axios.get(`${SERVER_URL}/api/pokedex?limit=5`);
+    const { entries } = response.data;
+
+    let message = '📖 **Pokédex** (First 5 entries)\n\n';
+    entries.forEach((entry) => {
+      message += `#${entry.speciesId} **${entry.name}** - ${entry.types?.join('/')}\n`;
+      message += `HP: ${entry.baseStats?.hp} | ATK: ${entry.baseStats?.atk} | DEF: ${entry.baseStats?.def}\n\n`;
+    });
+
+    return ctx.reply(message, { parse_mode: 'Markdown' });
+  } catch (error) {
+    console.error(error);
+    return ctx.reply('❌ Failed to load Pokédex.');
+  }
 });
 
 // Help command
