@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
-export default function Pokedex() {
+export default function Pokedex({ user, onLogout }) {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
     fetchPokedex();
@@ -14,13 +16,15 @@ export default function Pokedex() {
     setLoading(true);
     try {
       const url = search
-        ? `/api/pokedex/search/${search}`
-        : `/api/pokedex?page=${page}&limit=20`;
+        ? `${API_URL}/api/pokedex/search/${search}`
+        : `${API_URL}/api/pokedex?page=${page}&limit=20`;
       const res = await fetch(url);
+      if (!res.ok) throw new Error(`API returned ${res.status}`);
       const data = await res.json();
       setEntries(Array.isArray(data) ? data : data.entries || []);
     } catch (error) {
       console.error('Failed to fetch Pokedex:', error);
+      setEntries([]);
     } finally {
       setLoading(false);
     }
@@ -28,7 +32,13 @@ export default function Pokedex() {
 
   return (
     <div className="pokedex-container">
-      <h1>Pokédex</h1>
+      <div className="pokedex-header">
+        <h1>Pokédex</h1>
+        <div className="user-info">
+          <p>Welcome, {user?.username || 'Player'}</p>
+          <button onClick={onLogout} className="logout-btn">Logout</button>
+        </div>
+      </div>
       <input
         type="text"
         placeholder="Search Pokémon..."
