@@ -7,12 +7,10 @@ const Home = ({ user, onNavigate, onLogout }) => {
     { id: 'pokemon', label: 'POKÉMON', icon: '⚪' },
     { id: 'bag', label: 'BAG', icon: '🎒' },
     { id: 'league', label: 'LEAGUE CARD', icon: '🏆' },
-    { id: 'save', label: 'SAVE', icon: '💾' },
     { id: 'map', label: 'TOWN MAP', icon: '🗺️' },
     { id: 'camp', label: 'POKÉMON CAMP', icon: '⛺' },
-    { id: 'mystery', label: 'MYSTERY GIFT', icon: '🎁' },
-    { id: 'vs', label: 'VS', icon: '⚔️' },
     { id: 'options', label: 'OPTIONS', icon: '⚙️' },
+    // Note: Save is automatic; Mystery Gift and VS removed per design
   ];
 
   return (
